@@ -18,22 +18,23 @@ void *ptr;
 sem_t *sem_id_writer;
 sem_t *sem_id_reader;
 
-void write_on_shared_mem(int *ptr, int shared_map[W][H], int radius, int x_pos, int y_pos)
+void write_on_shared_mem(int *ptr, int radius, int x_pos, int y_pos)
 {
     x_pos = 20 * x_pos;
     y_pos = 20 * y_pos;
 
     sem_wait(sem_id_writer);
 
+    // Remove previous circle
     for (int row = 0; row < H; row++)
     {
         for (int col = 0; col < W; col++)
         {
-            shared_map[row][col] = 0;
-            ptr[col + row * W] = shared_map[row][col];
+            ptr[col + row * W] = 0;
         }
     }
     
+    // Write the new one given the center coords and the radious
     for (int x = -radius; x <= radius; x++)
     {
         for (int y = -radius; y <= radius; y++)
@@ -47,24 +48,8 @@ void write_on_shared_mem(int *ptr, int shared_map[W][H], int radius, int x_pos, 
                  */
                 int x_p = x_pos + x;
                 int y_p = y_pos + y;
-                // shared_map[x_p][y_p] = 255;
                 ptr[y_p + W * x_p] = 255;
-                // ptr[x + W * y] = 255;
             }
-        }
-    }
-    sem_post(sem_id_reader);
-}
-
-void initialize_map(int *ptr, int shared_map[W][H])
-{
-    sem_wait(sem_id_writer);
-    for (int row = 0; row < H; row++)
-    {
-        for (int col = 0; col < W; col++)
-        {
-            shared_map[row][col] = 0;
-            ptr[col + row * W] = shared_map[row][col];
         }
     }
     sem_post(sem_id_reader);
@@ -72,8 +57,6 @@ void initialize_map(int *ptr, int shared_map[W][H])
 
 void remove_previous_circle()
 {
-    mvprintw(LINES - 4, 1, "ASDFGH");
-
     rgb_pixel_t *pixel;
     rgb_pixel_t white = {255, 255, 255, 0};
     for (int x = 0; x <= W; x++)
@@ -106,9 +89,7 @@ void print_circle(int radius, rgb_pixel_t pixel, int x_pos, int y_pos)
 
 int main(int argc, char *argv[])
 {
-    int shared_map[W][H];
-    const int SIZE = sizeof(shared_map);
-
+    const int SIZE = W*H*sizeof(int);
     const char *shm_name = "/STATIC_SHARED_MEM";
     int i, shm_fd;
     int *ptr;
@@ -120,7 +101,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    ftruncate(shm_fd, sizeof(shared_map));
+    ftruncate(shm_fd, SIZE);
     ptr = mmap(0, SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
     if (ptr == MAP_FAILED)
     {
@@ -145,8 +126,6 @@ int main(int argc, char *argv[])
     sem_init(sem_id_writer, 1, 1);
     sem_init(sem_id_reader, 1, 0);
 
-    // initialize_map(ptr, shared_map);
-
     rgb_pixel_t pixel = {255, 0, 0, 0};
 
     if ((bmp = bmp_create(W, H, D)) == NULL)
@@ -163,7 +142,7 @@ int main(int argc, char *argv[])
 
     int pos_x = 45;
     int pos_y = 15;
-    write_on_shared_mem(ptr, shared_map, 30, pos_y, pos_x);
+    write_on_shared_mem(ptr, 30, pos_y, pos_x);
     print_circle(30, pixel, pos_x, pos_y);
 
     // Infinite loop
@@ -193,7 +172,7 @@ int main(int argc, char *argv[])
             {
                 if (check_button_pressed(print_btn, &event))
                 {
-                    sprintf(filename, "./snapshot_%d.bmp", index_snapshot);
+                    sprintf(filename, "./out/snapshot_%d.bmp", index_snapshot);
                     index_snapshot++;
                     // Save image as .bmp file
                     bmp_save(bmp, filename);
@@ -248,7 +227,7 @@ int main(int argc, char *argv[])
             print_circle(30, pixel, pos_x, pos_y);
 
             // Static shared memory
-            write_on_shared_mem(ptr, shared_map, 30, pos_y, pos_x);
+            write_on_shared_mem(ptr, 30, pos_y, pos_x);
 
             move_circle(cmd);
             draw_circle();

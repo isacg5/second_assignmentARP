@@ -20,28 +20,77 @@ void get_position(int *ptr, int *x, int *y)
     int c = 0;
     int x_pos = 0;
     int y_pos = 0;
+    int max = -1;
+    int max_2 = -1;
+    int index_x = -1;
+    int index_y = -1;
+    int equal_rows = 0;
+    int equal_cols = 0;
+
     for (int row = 0; row < H; row++)
     {
         c = 0;
         for (int col = 0; col < W; col++)
         {
             int index = col + row * W;
-            if(ptr[index] == 255){
+            if (ptr[index] == 255)
+            {
                 c++;
             }
-            else{
-                c = 0;
-            }
+            else
+            {
+                if (c == max)
+                {
+                    equal_rows = equal_rows + 1;
+                }
+                if (c > max)
+                {
+                    max = c;
+                    index_x = col;
+                    index_y = row;
+                    equal_rows = 0;
+                }
 
-            if(c == 59){
-                x_pos = col-29;
-                y_pos = row;
+                c = 0;
             }
         }
     }
 
-    *x = x_pos / 20;
-    *y = y_pos / 20;
+    for (int col = 0; col < W; col++)
+    {
+        c = 0;
+        for (int row = 0; row < H; row++)
+        {
+            int index = col + row * W;
+            if (ptr[index] == 255)
+            {
+                c++;
+            }
+            else
+            {
+                if (c == max_2)
+                {
+                    equal_cols = equal_cols + 1;
+                }
+                if (c > max_2)
+                {
+                    max_2 = c;
+                    index_y = row;
+                    equal_cols = 0;
+                }
+
+                c = 0;
+            }
+        }
+    }
+
+    *x = (index_x - (max / 2) - 1) / 20;
+    if(*x == 0)
+        *x = W/20;
+    *y = (index_y - (max_2 / 2) - 1) / 20;
+
+    mvprintw(LINES - 2, 1, "X: %i Y: %i, c: %i, %i", index_x, index_y, max, equal_rows);
+    mvprintw(LINES - 1, 1, "X: %i Y: %i", (index_x - (max / 2) - 1), (index_y - (max_2 / 2) - 1));
 
     sem_post(sem_id_writer);
 }
