@@ -1,7 +1,7 @@
 # ARP-SharedMemory-Assignment
-Second *Advanced and Robot Programming* (ARP) assignment. This assignment works with the ncurses library, konsole and bitmap, so it is necessary to have them installed. There are provided two folders, one called src that include the c files for each process and other called include that contain the header of each c file. Once the program will be executed there will appear two more folders: bin, that will contain the executables and log, that will contain five log files (one per proccess) with the timestamp and the modifications.
+Second *Advanced and Robot Programming* (ARP) assignment. This assignment works with the ncurses library, konsole and bitmap, so it is necessary to have them installed. There are provided two folders, one called src that include the c files for each process and other called include that contain the header of each c file. Once the program will be executed there will appear two more folders: bin, that will contain the executables and out, that will contain the .bmp files each time the user will press the print button.
 
-This assigment is composed of two main processed that, by reading and writing in a shared memory, are able to comunicate the position of a circle. Both process have a dynamic private memory and a static shared memory. Both memories keep updated all the time. Notice that the memories have a dimension 20 times bigger than the windows that the user sees.
+This assigment is composed of two main processes that, by reading and writing in a shared memory, are able to comunicate the position of a circle. Both process have a dynamic private memory and a static shared memory. Both memories keep updated all the time. Notice that the memories have a dimension 20 times bigger than the windows that the user sees.
 ## konsole installation
 To install the ncurses library, simply open a terminal and type the following command:
 ```console
