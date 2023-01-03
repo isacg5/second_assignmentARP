@@ -3,6 +3,16 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <signal.h>
+
+int flag = 0;
+
+void sig_handler(int signo)
+{
+    if (signo == SIGUSR1){
+      flag = 1;
+    }
+}
 
 int spawn(const char *program, char *arg_list[])
 {

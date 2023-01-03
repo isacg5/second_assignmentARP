@@ -2,6 +2,9 @@
 
 int main(int argc, char *argv[])
 {
+    if (signal(SIGUSR1, sig_handler) == SIG_ERR)
+        printf("\ncan't catch SIGUSR1\n");
+
     const int SIZE = W * H * sizeof(int);
 
     // Define shared memory segment
@@ -36,6 +39,9 @@ int main(int argc, char *argv[])
     // Define semaphores to start with the writer
     sem_init(sem_id_writer, 1, 1);
     sem_init(sem_id_reader, 1, 0);
+
+    // Send signal to master
+    kill(getpid(), SIGUSR1);
 
     rgb_pixel_t pixel = {255, 0, 0, 0};
 

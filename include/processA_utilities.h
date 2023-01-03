@@ -9,6 +9,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <semaphore.h>
+#include <signal.h>
 #define SEM_PATH_WRITER "/sem_writer"
 #define SEM_PATH_READER "/sem_reader"
 
@@ -380,4 +381,20 @@ int open_semaphores()
         return -1;
     }
     return 0;
+}
+
+void sig_handler(int signo)
+{
+    if (signo == SIGUSR1){
+        // Getting the pid of process "master"
+        char line[10];
+        FILE *cmd = popen("pidof -s master", "r");
+        fgets(line, 10, cmd);
+        pclose(cmd);
+        long pid = 0;
+        pid = strtoul(line, NULL, 10);
+
+        // Send signal to master
+        kill(pid, SIGUSR1);
+    }
 }

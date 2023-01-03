@@ -2,6 +2,9 @@
 
 int main(int argc, char const *argv[])
 {
+  if (signal(SIGUSR1, sig_handler) == SIG_ERR)
+    printf("\ncan't catch SIGINT\n");
+
   char *arg_list_A[] = {"/usr/bin/konsole", "-e", "./bin/processA", NULL};
   char *arg_list_B[] = {"/usr/bin/konsole", "-e", "./bin/processB", NULL};
 
@@ -9,10 +12,12 @@ int main(int argc, char const *argv[])
   if ((pid_procA = spawn("/usr/bin/konsole", arg_list_A)) == -1)
     return -1;
 
-  // Sleep necessary to be sure that process A is always executed
+  // Wait until process A send a signal, because process A is always executed
   // before process B, since process A is the one who created the semaphores
-  usleep(100000);
-  
+  while (flag == 0)
+  {
+  }
+
   pid_t pid_procB;
   if ((pid_procB = spawn("/usr/bin/konsole", arg_list_B)) == -1)
     return -1;
