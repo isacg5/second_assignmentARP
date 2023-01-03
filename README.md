@@ -33,4 +33,4 @@ The assignment is divided into 3 processes: A, B and master.
 Notice that to avoid any problem for the critical region, semaphores are used.
 
 Here is presented a brief scheme of how the assignment is working:
-![SCHEME](https://github.com/isacg5/second_assignmentARP/blob/main/resources/img.jpg)
+![SCHEME](https://github.com/isacg5/second_assignmentARP/blob/main/resources/image.jpg)
